@@ -16,6 +16,9 @@ class Device extends EventEmitter {
     this.device = device
     this.helper = new BusHelper(dbus, 'org.bluez', `/org/bluez/${adapter}/${device}`, 'org.bluez.Device1', { usePropsEvents: true })
   }
+	async getProps() {
+		return this.helper.props()
+	}
 
   /**
    * The Bluetooth remote name.
@@ -80,6 +83,50 @@ class Device extends EventEmitter {
   async isConnected () {
     return this.helper.prop('Connected')
   }
+
+  //the following properties  getManufacturerData -> getAdvertisingData were added by davidcreager on 24th Sept 2021
+  //dict ManufacturerData [readonly, optional] 
+  /*
+			Manufacturer specific advertisement data. Keys are
+			16 bits Manufacturer ID followed by its byte array
+			value.
+  */
+  async getManufacturerData () {
+    return this.helper.prop('ManufacturerData')
+  }
+  //dict ServiceData  [readonly, optional] 
+  /*
+			Service advertisement data. Keys are the UUIDs in
+			string format followed by its byte array value
+  */
+  
+  async getServiceData () {
+    return this.helper.prop('ServiceData')
+  }
+  //array{byte} AdvertisingFlags [readonly, experimental]
+  /*
+			The Advertising Data Flags of the remote device.
+  */
+  async getAdvertisingFlags () {
+    return this.helper.prop('AdvertisingFlags')
+  }
+   //dict AdvertisingData [readonly, experimental] 
+  /*
+			The Advertising Data of the remote device. Keys are
+			are 8 bits AD Type followed by data as byte array.
+			Note: Only types considered safe to be handled by
+			application are exposed
+			Possible values:
+				<type> <byte array>
+				...
+			Example:
+				<Transport Discovery> <Organization Flags...>
+				0x26                   0x01         0x01...
+  */
+    async getAdvertisingData () {
+    return this.helper.prop('AdvertisingData')
+  }
+
 
   /**
    * This method will connect to the remote device
