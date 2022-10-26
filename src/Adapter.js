@@ -146,6 +146,7 @@ class Adapter {
             if (e.message !== 'Device not found') {
               return e
             }
+			reject("Device not found");
           })
       }
 
@@ -155,18 +156,25 @@ class Adapter {
 
     const timeoutHandler = new Promise((resolve, reject) => {
       const handler = setTimeout(() => {
-        reject(new Error('operation timed out'))
+        //reject(new Error('operation timed out'))
+		reject('operation timed out')
       }, timeout)
 
       cancellable.push(() => clearTimeout(handler))
     })
-
-    const device = await Promise.race([discoveryHandler, timeoutHandler])
-
-    for (const cancel of cancellable) {
-      cancel()
-    }
-    return device
+	try {
+		const device = await Promise.race([discoveryHandler, timeoutHandler])
+		for (const cancel of cancellable) {
+		  cancel()
+		}
+		return device
+	} catch(er) {
+		console.log("operation timed out device not found")
+		for (const cancel of cancellable) {
+		  cancel()
+		}
+		return null;
+	}
   }
 
   /**
